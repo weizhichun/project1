@@ -1,0 +1,6 @@
+server:
+  port: 8080  # 用户端端口
+
+spring:
+  application:
+    name: shop-web

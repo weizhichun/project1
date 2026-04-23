@@ -1,0 +1,30 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.logs
+*.ctxt
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+release.properties
+
+# IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Spring Boot
+spring-boot-starter/
+.spring-boot-starter/
+
+# OS
+.DS_Store
+Thumbs.db
