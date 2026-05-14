@@ -1,30 +1,29 @@
-# Java
-*.class
-*.jar
-*.war
-*.ear
-*.logs
-*.ctxt
-
 # Maven
 target/
 pom.xml.tag
 pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
 release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
 # IDEA
 .idea/
-*.iws
 *.iml
+*.iws
 *.ipr
 out/
-!**/src/main/**/target/
-!**/src/test/**/target/
+logs/
 
 # Spring Boot
-spring-boot-starter/
-.spring-boot-starter/
+*.log
+*.gz
+*.tmp
+*.bak
 
-# OS
-.DS_Store
-Thumbs.db
+# Web
+node_modules/
+npm-debug.log

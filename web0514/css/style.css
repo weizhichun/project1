@@ -1,0 +1,32 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.header {
+    background-color: #409EFF;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+.content {
+    margin: 30px auto;
+    width: 80%;
+    text-align: center;
+}
+button {
+    padding: 10px 20px;
+    background-color: #67C23A;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #52C41A;
+}
+#result {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #333;
+}

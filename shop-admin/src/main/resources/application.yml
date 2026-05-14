@@ -1,6 +1,5 @@
-server:
-  port: 8081  # 管理端端口
-
 spring:
-  application:
-    name: shop-admin
+  profiles:
+    active: dev
+server:
+  port: 8081
