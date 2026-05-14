@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>对象列表循环演示</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { max-width: 1000px; margin: 50px auto; padding: 0 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        .odd { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h1 th:text="${title}">用户列表</h1>
+        <p>共 <span th:text="${#lists.size(userList)}">0</span> 条记录</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>昵称</th>
+                    <th>邮箱</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 
+                    th:each="元素变量, 状态变量 : ${集合变量}"
+                    状态变量（iterStat）包含以下属性：
+                    - index：从0开始的索引
+                    - count：从1开始的序号
+                    - size：集合总大小
+                    - first：是否是第一个元素（boolean）
+                    - last：是否是最后一个元素（boolean）
+                    - even：是否是偶数行（boolean）
+                    - odd：是否是奇数行（boolean）
+                -->
+                <tr th:each="user, iterStat : ${userList}"
+                    th:class="${iterStat.odd} ? 'odd'">
+                    <!-- 打印到控制台 -->
+                    <script th:inline="javascript">
+                        var iterStat = /*[[${iterStat}]]*/ '';
+                        console.log("iterStat 完整对象：", iterStat);
+                    </script>
+                    <td th:text="${iterStat.count}">1</td>
+                    <td th:text="${user.userId}">1</td>
+                    <td th:text="${user.username}">zhangsan</td>
+                    <td th:text="${user.nickname}">张三</td>
+                    <td th:text="${user.email}">zhangsan@qq.com</td>
+                    <td th:text="${user.status == 1 ? '正常' : '禁用'}"
+                        th:style="${user.status == 1 ? 'color: #27ae60' : 'color: #e74c3c'}">
+                        正常
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

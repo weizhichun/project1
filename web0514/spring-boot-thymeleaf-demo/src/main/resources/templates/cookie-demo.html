@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Cookie演示</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .btn-group { margin: 20px 0; }
+        .btn { padding: 10px 20px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .info { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h1>Cookie 操作演示</h1>
+        
+        <div class="info">
+            <p><strong>当前Cookie值：</strong> 
+                <span th:text="${cookieValue != null ? cookieValue : '未设置'}" th:if="${cookieValue != null}"></span>
+                <span th:unless="${cookieValue != null}">未设置</span>
+            </p>
+        </div>
+
+        <div class="btn-group">
+            <a th:href="@{/set-cookie}" class="btn btn-primary">设置Cookie（username=zhangsan）</a>
+            <a th:href="@{/set-cookie-modern}" class="btn btn-success">设置Cookie（cartId=123456）</a>
+            <a th:href="@{/get-cookie}" class="btn btn-primary">读取Cookie</a>
+            <a th:href="@{/delete-cookie}" class="btn btn-danger">删除Cookie</a>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+            <h3>Cookie 说明：</h3>
+            <ul style="line-height: 2; margin-top: 10px;">
+                <li>Cookie存储在客户端浏览器中，最大4KB</li>
+                <li>可以设置过期时间、生效路径、域名等属性</li>
+                <li>HttpOnly属性可防止XSS攻击</li>
+                <li>SameSite属性可防御CSRF攻击</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

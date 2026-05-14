@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>链接表达式演示</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .section { margin: 30px 0; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h1>Thymeleaf 链接表达式演示</h1>
+
+        <!-- 1. 简单URL -->
+        <div class="section">
+            <h2>1. 简单URL</h2>
+            <a th:href="@{/test/hello}">变量输出演示</a>
+        </div>
+
+        <!-- 2. 带查询参数的URL -->
+        <div class="section">
+            <h2>2. 带查询参数的URL</h2>
+            <a th:href="@{/test/user(id=${userId}, name='张三')}">查询用户ID=1</a>
+            <!-- 生成：/test/user?id=1&name=张三 -->
+        </div>
+
+        <!-- 3. 带路径变量的URL -->
+        <div class="section">
+            <h2>3. 带路径变量的URL</h2>
+            <a th:href="@{/test/user/{id}(id=${userId})}">编辑用户ID=1</a>
+            <!-- 生成：/test/user/1 -->
+        </div>
+
+        <!-- 4. 静态资源URL -->
+        <div class="section">
+            <h2>4. 静态资源URL</h2>
+            <link rel="stylesheet" th:href="@{/css/common.css}">
+            <script th:src="@{/js/common.js}"></script>
+            <img th:src="@{/images/logo.png}" alt="Logo">
+            <p style="margin-top: 10px; color: #666; font-size: 12px;">
+                （以上静态资源引用使用 th:href/th:src + @{} 语法）
+            </p>
+        </div>
+
+        <!-- 5. 表单提交地址 -->
+        <div class="section">
+            <h2>5. 表单提交地址</h2>
+            <form th:action="@{/test/form}" method="post">
+                <button type="submit" style="padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">提交表单</button>
+            </form>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

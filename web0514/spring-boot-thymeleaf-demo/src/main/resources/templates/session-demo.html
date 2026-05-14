@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Session演示</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .btn-group { margin: 20px 0; }
+        .btn { padding: 10px 20px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .info { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0; }
+        .user-info { background: #e8f4f8; padding: 15px; border-radius: 4px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h1>Session 操作演示</h1>
+        
+        <!-- 显示Session中的用户信息 -->
+        <div class="user-info" th:if="${session.loginUser != null}">
+            <h3>当前登录用户：</h3>
+            <p>用户ID：<span th:text="${session.loginUser.userId}"></span></p>
+            <p>用户名：<span th:text="${session.loginUser.username}"></span></p>
+            <p>昵称：<span th:text="${session.loginUser.nickname}"></span></p>
+            <p>邮箱：<span th:text="${session.loginUser.email}"></span></p>
+        </div>
+        
+        <div class="info" th:unless="${session.loginUser != null}">
+            <p><strong>当前状态：</strong>未登录，Session中无用户信息</p>
+        </div>
+
+        <div class="btn-group">
+            <a th:href="@{/set-session}" class="btn btn-primary">设置Session（模拟登录）</a>
+            <a th:href="@{/get-session}" class="btn btn-success">读取Session</a>
+            <a th:href="@{/logout}" class="btn btn-danger">销毁Session（退出登录）</a>
+            <a th:href="@{/login}" class="btn btn-primary">去登录页面</a>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+            <h3>Session 说明：</h3>
+            <ul style="line-height: 2; margin-top: 10px;">
+                <li>Session存储在服务器端，可存储任意Java对象</li>
+                <li>通过Session ID（存储在Cookie中）识别用户</li>
+                <li>默认超时时间30分钟，可配置</li>
+                <li>分布式环境下需使用Redis等共享存储</li>
+                <li>退出登录时应调用session.invalidate()彻底销毁</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

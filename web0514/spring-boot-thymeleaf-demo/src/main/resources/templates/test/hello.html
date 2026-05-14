@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>变量输出演示</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        .section { margin: 30px 0; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h1>Thymeleaf 变量输出演示</h1>
+
+        <!-- 1. 普通变量输出：${变量名} + th:text -->
+        <div class="section">
+            <h2>1. 普通变量输出</h2>
+            <p>消息：<span th:text="${message}">默认消息</span></p>
+            <p>姓名：<span th:text="${name}">默认姓名</span></p>
+            <p>年龄：<span th:text="${age}">0</span> 岁</p>
+        </div>
+
+        <!-- 2. th:text 与 th:utext 的区别 -->
+        <div class="section">
+            <h2>2. HTML转义：th:text vs th:utext</h2>
+            <p><strong>th:text（自动转义，推荐）：</strong>
+               <span th:text="${htmlContent}">默认内容</span>
+            </p>
+            <p><strong>th:utext（不转义，慎用）：</strong>
+               <span th:utext="${htmlContent}">默认内容</span>
+            </p>
+            <p style="color: #e74c3c; font-size: 12px;">
+               ⚠ 注意：th:utext会直接输出HTML内容，可能导致XSS攻击，仅用于可信内容
+            </p>
+        </div>
+
+        <!-- 3. 字符串拼接 -->
+        <div class="section">
+            <h2>3. 字符串拼接</h2>
+            <p>方式1（+号）：<span th:text="'你好，' + ${name} + '！'">你好，默认！</span></p>
+            <p>方式2（|...|）：<span th:text="|你好，${name}！|">你好，默认！</span></p>
+        </div>
+
+        <!-- 4. 内置工具类：日期格式化 -->
+        <div class="section">
+            <h2>4. 内置工具类：日期格式化</h2>
+            <p>当前时间（默认格式）：<span th:text="${now}"></span></p>
+            <p>当前时间（自定义格式）：<span th:text="${#dates.format(now, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

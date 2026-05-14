@@ -1,0 +1,24 @@
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 1800s
+      cookie:
+        name: SESSION_ID
+        path: /
+        http-only: true
+        secure: false
+        same-site: Lax
+        max-age: 1800s
+
+spring:
+  application:
+    name: spring-boot-thymeleaf-demo
+  
+  # Thymeleaf配置
+  thymeleaf:
+    cache: false                    # 开发阶段关闭缓存
+    prefix: classpath:/templates/   # 模板文件根目录
+    suffix: .html                   # 模板文件后缀
+    encoding: UTF-8
+    mode: HTML

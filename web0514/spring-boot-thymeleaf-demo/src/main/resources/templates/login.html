@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body   { font-family: Arial, sans-serif; max-width: 400px; margin: 60px auto; }
+        .error { color: #e74c3c; margin-bottom: 10px; }
+        input  { width: 100%; padding: 8px; margin: 6px 0 14px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #3498db; color: white; border: none; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        .link { text-align: center; margin-top: 16px; }
+        .server-time { text-align: center; color: #666; font-size: 12px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h2>用户登录</h2>
+
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <form th:action="@{/login}" method="post">
+            <label>用户名</label>
+            <input type="text" name="username" placeholder="请输入用户名（测试账号：admin）" required />
+            <label>密码</label>
+            <input type="password" name="password" placeholder="请输入密码（测试密码：123456）" required />
+            <button type="submit">登 录</button>
+        </form>
+
+        <div class="link">
+            还没有账号？<a th:href="@{/register}">立即注册</a>
+        </div>
+
+        <div class="server-time">
+            服务器时间：<span th:text="${#temporals.format(serverTime, 'yyyy-MM-dd HH:mm:ss')}" th:if="${serverTime != null}"></span>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

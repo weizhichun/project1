@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>首页 - Spring Boot + Thymeleaf</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+        nav  { background: #2c3e50; padding: 12px 20px; color: white; margin-bottom: 20px; }
+        nav a { color: white; text-decoration: none; margin-right: 16px; }
+        .welcome { background: #f8f9fa; padding: 30px; border-radius: 8px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <nav>
+            <strong>在线商城</strong>
+
+            <!-- 已登录：显示欢迎信息 + 退出 -->
+            <span th:if="${session.loginUser != null}" style="float: right;">
+                欢迎，<strong th:text="${session.loginUser.nickname}">用户</strong>
+                &nbsp;|&nbsp;
+                <a th:href="@{/logout}">退出登录</a>
+            </span>
+
+            <!-- 未登录：显示登录 / 注册 -->
+            <span th:unless="${session.loginUser != null}" style="float: right;">
+                <a th:href="@{/login}">登录</a>
+                &nbsp;|&nbsp;
+                <a th:href="@{/register}">注册</a>
+            </span>
+        </nav>
+
+        <div class="welcome">
+            <h1>欢迎来到 Spring Boot + Thymeleaf 实验项目</h1>
+            <p>这是一个完整的Thymeleaf模板引擎演示项目，包含以下功能：</p>
+            <ul style="margin: 20px 0 20px 40px; line-height: 2;">
+                <li>基本变量输出与HTML转义</li>
+                <li>字符串列表与对象列表循环</li>
+                <li>条件判断与多分支选择</li>
+                <li>链接表达式与路径处理</li>
+                <li>表单绑定与数据回显</li>
+                <li>公共片段复用（th:fragment）</li>
+                <li>Cookie的设置、读取、删除</li>
+                <li>Session的设置、读取、销毁</li>
+                <li>用户登录/退出登录功能</li>
+            </ul>
+            <p>请点击顶部导航栏的各个链接进行体验！</p>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

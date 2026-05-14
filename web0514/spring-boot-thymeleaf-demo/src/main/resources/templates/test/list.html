@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>列表循环演示</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { max-width: 800px; margin: 50px auto; padding: 0 20px; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 10px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h1>Thymeleaf 列表循环演示</h1>
+
+        <h2>水果列表</h2>
+        <ul>
+            <!-- 
+                th:each="元素变量 : ${集合变量}"
+                - 元素变量：每次循环取出的单个元素
+                - 集合变量：Model中存储的List/Set/数组等集合
+            -->
+            <li th:each="fruit : ${fruits}" th:text="${fruit}">默认水果</li>
+        </ul>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>表单绑定演示</title>
+    <div th:replace="~{common/header :: common-css}"></div>
+    <style>
+        body { max-width: 500px; margin: 50px auto; padding: 0 20px; }
+        .form-item { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2980b9; }
+        .success { color: #27ae60; margin-bottom: 20px; padding: 10px; background: #f0f9f0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{common/header :: common-header}"></div>
+    
+    <div class="container">
+        <h1>Thymeleaf 表单绑定演示</h1>
+
+        <!-- 提交成功提示 -->
+        <div th:if="${successMsg != null}" class="success" th:text="${successMsg}"></div>
+
+        <form th:action="@{/test/form}" th:object="${user}" method="post">
+            <input type="hidden" name="userId" value="1001">           
+            <div class="form-item">
+                <label>用户名</label>
+                <input type="text" th:field="*{username}" placeholder="请输入用户名">
+            </div>
+        
+            <div class="form-item">
+                <label>密码</label>
+                <input type="password" th:field="*{password}" placeholder="请输入密码">
+            </div>
+        
+            <div class="form-item">
+                <label>昵称</label>
+                <input type="text" th:field="*{nickname}" placeholder="请输入昵称">
+            </div>
+        
+            <div class="form-item">
+                <label>年龄</label>
+                <input type="number" th:field="*{age}" placeholder="请输入年龄">
+            </div>
+        
+            <div class="form-item">
+                <label>邮箱</label>
+                <input type="email" th:field="*{email}" placeholder="请输入邮箱">
+            </div>
+        
+            <button type="submit">提交</button>
+        </form>
+
+        <!-- 显示提交的用户数据 -->
+        <div th:if="${user.userId != null}" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+            <h3>提交的用户数据：</h3>
+            <p>用户ID：<span th:text="${user.userId}"></span></p>
+            <p>用户名：<span th:text="${user.username}"></span></p>
+            <p>昵称：<span th:text="${user.nickname}"></span></p>
+            <p>年龄：<span th:text="${user.age}"></span></p>
+            <p>邮箱：<span th:text="${user.email}"></span></p>
+        </div>
+    </div>
+    
+    <div th:replace="~{common/footer :: common-footer}"></div>
+    <div th:replace="~{common/footer :: footer-css}"></div>
+</body>
+</html>
