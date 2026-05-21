@@ -4,26 +4,27 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.weizhichun</groupId>
+    <groupId>com.wzc</groupId>
     <artifactId>wei-zhichun</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>shop-admin</module>
         <module>shop-common</module>
         <module>shop-web</module>
+        <module>shop-admin</module>
     </modules>
 
-    <!-- 统一依赖版本 -->
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <spring-boot.version>2.7.15</spring-boot.version>
+        <spring-boot.version>2.7.18</spring-boot.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+        <thumbnailator.version>0.4.19</thumbnailator.version>
+        <mysql.version>8.0.33</mysql.version>
     </properties>
 
-    <!-- 依赖管理 -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -33,11 +34,35 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.coobird</groupId>
+                <artifactId>thumbnailator</artifactId>
+                <version>${thumbnailator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
-        <!-- 公共依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理 - 商品管理 & 富文本编辑器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 20px; }
+        h2 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #E6A23C; padding-bottom: 10px; }
+        .section { background: white; padding: 25px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .section h3 { color: #E6A23C; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        button { padding: 10px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 8px; margin-bottom: 8px; }
+        .btn-primary { background: #409EFF; color: white; }
+        .btn-primary:hover { background: #337ECC; }
+        .btn-success { background: #67C23A; color: white; }
+        .btn-success:hover { background: #529B2E; }
+        .btn-warning { background: #E6A23C; color: white; }
+        .btn-warning:hover { background: #CF9236; }
+        .btn-danger { background: #F56C6C; color: white; }
+        .btn-danger:hover { background: #DA5757; }
+        .result { margin-top: 12px; padding: 12px; border-radius: 4px; display: none; }
+        .result.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .result.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .result.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        table th, table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+        table th { background: #f5f7fa; font-weight: bold; color: #555; }
+        .status-badge { padding: 2px 10px; border-radius: 10px; font-size: 12px; }
+        .status-on { background: #d4edda; color: #155724; }
+        .status-off { background: #f8d7da; color: #721c24; }
+        .inline-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+        .inline-form .form-group { flex: 1; min-width: 120px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>shop-admin 后台管理系统 - 测试平台</h2>
+
+    <!-- 商品添加 -->
+    <div class="section">
+        <h3>商品添加 / 编辑</h3>
+        <input type="hidden" id="editProductId" value="">
+        <div class="form-group">
+            <label>商品名称：</label>
+            <input type="text" id="productName" placeholder="输入商品名称">
+        </div>
+        <div class="form-group">
+            <label>价格：</label>
+            <input type="number" id="price" placeholder="输入价格" step="0.01">
+        </div>
+        <div class="form-group">
+            <label>库存：</label>
+            <input type="number" id="stock" placeholder="输入库存数量">
+        </div>
+        <div class="form-group">
+            <label>分类：</label>
+            <input type="text" id="category" placeholder="如：手机数码">
+        </div>
+        <div class="form-group">
+            <label>商品描述（支持富文本）：</label>
+            <textarea id="description" placeholder="输入商品描述"></textarea>
+        </div>
+        <div class="form-group">
+            <label>商品主图URL：</label>
+            <input type="text" id="mainImage" placeholder="上传图片后填入URL">
+        </div>
+        <button class="btn-primary" onclick="addProduct()">添加商品</button>
+        <button class="btn-success" onclick="updateProduct()">保存修改</button>
+        <div class="result" id="productResult"></div>
+    </div>
+
+    <!-- 文件上传测试（admin端） -->
+    <div class="section">
+        <h3>图片上传（商品图片）</h3>
+        <div class="form-group">
+            <label>选择图片：</label>
+            <input type="file" id="productImage" accept="image/*">
+        </div>
+        <button class="btn-primary" onclick="uploadProductImage()">上传图片</button>
+        <div class="result" id="uploadResult"></div>
+        <div id="uploadPreview" style="margin-top:10px;"></div>
+        <div id="uploadUrls" style="font-size:12px;color:#888;margin-top:5px;"></div>
+    </div>
+
+    <!-- 富文本编辑器图片上传 -->
+    <div class="section">
+        <h3>富文本编辑器图片上传测试</h3>
+        <p style="color:#888;margin-bottom:10px;">模拟富文本编辑器上传图片，返回 wangEditor 格式响应</p>
+        <div class="form-group">
+            <label>选择图片：</label>
+            <input type="file" id="editorImage" accept="image/*">
+        </div>
+        <button class="btn-warning" onclick="uploadEditorImage()">编辑器上传</button>
+        <div class="result" id="editorResult"></div>
+        <div id="editorPreview" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- 商品列表 -->
+    <div class="section">
+        <h3>商品列表 & 上下架 & 删除</h3>
+        <div class="inline-form">
+            <div class="form-group">
+                <label>搜索商品：</label>
+                <input type="text" id="searchName" placeholder="商品名称">
+            </div>
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <button class="btn-primary" onclick="loadProducts()">搜索</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th><th>名称</th><th>价格</th><th>库存</th><th>分类</th><th>状态</th><th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <tr><td colspan="7" style="text-align:center;color:#aaa;">点击搜索加载商品列表</td></tr>
+            </tbody>
+        </table>
+        <div id="productListResult" style="margin-top:10px;color:#888;font-size:13px;"></div>
+    </div>
+</div>
+
+<script>
+    function showResult(id, success, message) {
+        var el = document.getElementById(id);
+        el.style.display = 'block';
+        el.className = 'result ' + (success ? 'success' : 'error');
+        el.textContent = message;
+    }
+
+    function uploadProductImage() {
+        var file = document.getElementById('productImage').files[0];
+        if (!file) { showResult('uploadResult', false, '请选择文件'); return; }
+        var formData = new FormData();
+        formData.append('file', file);
+        fetch('/admin/file/upload', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                showResult('uploadResult', data.code === 200, data.msg);
+                if (data.code === 200 && data.data) {
+                    document.getElementById('mainImage').value = data.data.url;
+                    document.getElementById('uploadPreview').innerHTML =
+                        '<img src="' + data.data.url + '" style="max-width:200px;">';
+                    document.getElementById('uploadUrls').innerHTML =
+                        '原始: ' + data.data.url + ' | PC: ' + data.data.pcUrl + ' | Mobile: ' + data.data.mobileUrl +
+                        (data.data.deduplicated ? ' | ⚠去重命中' : ' | ✅新文件');
+                }
+            }).catch(e => showResult('uploadResult', false, '请求失败: ' + e));
+    }
+
+    function uploadEditorImage() {
+        var file = document.getElementById('editorImage').files[0];
+        if (!file) { showResult('editorResult', false, '请选择文件'); return; }
+        var formData = new FormData();
+        formData.append('file', file);
+        fetch('/admin/file/upload/editor', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                showResult('editorResult', data.errno === 0, data.message);
+                if (data.errno === 0 && data.data) {
+                    document.getElementById('editorPreview').innerHTML =
+                        '<img src="' + data.data.url + '" style="max-width:300px;border:1px solid #ddd;padding:5px;">';
+                }
+            }).catch(e => showResult('editorResult', false, '请求失败: ' + e));
+    }
+
+    function addProduct() {
+        var body = {
+            productName: document.getElementById('productName').value,
+            price: parseFloat(document.getElementById('price').value),
+            stock: parseInt(document.getElementById('stock').value) || 0,
+            category: document.getElementById('category').value,
+            description: document.getElementById('description').value,
+            mainImage: document.getElementById('mainImage').value
+        };
+        fetch('/admin/product', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(data => {
+            showResult('productResult', data.code === 200, data.msg);
+            if (data.code === 200) loadProducts();
+        }).catch(e => showResult('productResult', false, '请求失败: ' + e));
+    }
+
+    function updateProduct() {
+        var id = document.getElementById('editProductId').value;
+        if (!id) { showResult('productResult', false, '请先从列表选择商品编辑'); return; }
+        var body = {
+            id: parseInt(id),
+            productName: document.getElementById('productName').value,
+            price: parseFloat(document.getElementById('price').value),
+            stock: parseInt(document.getElementById('stock').value) || 0,
+            category: document.getElementById('category').value,
+            description: document.getElementById('description').value,
+            mainImage: document.getElementById('mainImage').value
+        };
+        fetch('/admin/product', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(data => {
+            showResult('productResult', data.code === 200, data.msg);
+            if (data.code === 200) {
+                document.getElementById('editProductId').value = '';
+                loadProducts();
+                clearForm();
+            }
+        }).catch(e => showResult('productResult', false, '请求失败: ' + e));
+    }
+
+    function clearForm() {
+        document.getElementById('editProductId').value = '';
+        document.getElementById('productName').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('stock').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('mainImage').value = '';
+    }
+
+    function loadProducts() {
+        var name = document.getElementById('searchName').value;
+        fetch('/admin/product/page?productName=' + encodeURIComponent(name) + '&pageNum=1&pageSize=50')
+            .then(r => r.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
+                    var records = data.data.records || [];
+                    var html = '';
+                    records.forEach(function(p) {
+                        var statusLabel = p.status === 1
+                            ? '<span class="status-badge status-on">上架</span>'
+                            : '<span class="status-badge status-off">下架</span>';
+                        html += '<tr>' +
+                            '<td>' + p.id + '</td>' +
+                            '<td>' + p.productName + '</td>' +
+                            '<td>¥' + (p.price || 0) + '</td>' +
+                            '<td>' + p.stock + '</td>' +
+                            '<td>' + (p.category || '-') + '</td>' +
+                            '<td>' + statusLabel + '</td>' +
+                            '<td>' +
+                            '<button class="btn-primary" style="padding:4px 10px;font-size:12px;" onclick="editProduct(' + p.id + ')">编辑</button> ' +
+                            (p.status === 1
+                                ? '<button class="btn-warning" style="padding:4px 10px;font-size:12px;" onclick="toggleStatus(' + p.id + ',0)">下架</button> '
+                                : '<button class="btn-success" style="padding:4px 10px;font-size:12px;" onclick="toggleStatus(' + p.id + ',1)">上架</button> ') +
+                            '<button class="btn-danger" style="padding:4px 10px;font-size:12px;" onclick="deleteProduct(' + p.id + ')">删除</button>' +
+                            '</td>' +
+                            '</tr>';
+                    });
+                    document.getElementById('productTableBody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;">暂无数据</td></tr>';
+                    document.getElementById('productListResult').textContent =
+                        '共 ' + (data.data.total || 0) + ' 条记录';
+                }
+            }).catch(e => console.error(e));
+    }
+
+    function editProduct(id) {
+        fetch('/admin/product/' + id)
+            .then(r => r.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
+                    var p = data.data;
+                    document.getElementById('editProductId').value = p.id;
+                    document.getElementById('productName').value = p.productName || '';
+                    document.getElementById('price').value = p.price || '';
+                    document.getElementById('stock').value = p.stock || '';
+                    document.getElementById('category').value = p.category || '';
+                    document.getElementById('description').value = p.description || '';
+                    document.getElementById('mainImage').value = p.mainImage || '';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+    }
+
+    function toggleStatus(id, status) {
+        fetch('/admin/product/status', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, status: status })
+        }).then(r => r.json()).then(data => {
+            alert(data.msg);
+            loadProducts();
+        });
+    }
+
+    function deleteProduct(id) {
+        if (!confirm('确认删除该商品？(逻辑删除)')) return;
+        fetch('/admin/product/' + id, { method: 'DELETE' })
+            .then(r => r.json()).then(data => {
+                alert(data.msg);
+                loadProducts();
+            });
+    }
+
+    loadProducts();
+</script>
+</body>
+</html>

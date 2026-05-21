@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户中心 - 文件上传测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 30px auto; padding: 20px; }
+        h2 { color: #333; margin-bottom: 20px; border-bottom: 2px solid #4A90D9; padding-bottom: 10px; }
+        .section { background: white; padding: 25px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .section h3 { color: #4A90D9; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-group input[type="text"], .form-group input[type="email"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-group input[type="file"] { padding: 8px; }
+        button { padding: 10px 24px; background: #4A90D9; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #357ABD; }
+        .result { margin-top: 15px; padding: 12px; border-radius: 4px; display: none; }
+        .result.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .result.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .preview { margin-top: 10px; max-width: 300px; }
+        .preview img { max-width: 100%; border-radius: 4px; border: 1px solid #ddd; }
+        .url-list { margin-top: 10px; font-size: 13px; color: #666; }
+        .url-list div { margin: 3px 0; word-break: break-all; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>shop-web 用户中心 - 图片上传测试平台</h2>
+
+    <!-- Section 5: 基础文件上传 -->
+    <div class="section">
+        <h3>第五节：基础版图片上传</h3>
+        <div class="form-group">
+            <label>选择图片文件（支持 jpg/png/gif/bmp/webp，最大10MB）：</label>
+            <input type="file" id="basicFile" accept="image/*">
+        </div>
+        <button onclick="uploadBasic()">上传图片</button>
+        <div class="result" id="basicResult"></div>
+        <div class="preview" id="basicPreview"></div>
+        <div class="url-list" id="basicUrls"></div>
+    </div>
+
+    <!-- Section 6: 安全验证 -->
+    <div class="section">
+        <h3>第六节：安全验证测试（恶意文件拦截）</h3>
+        <p style="color:#888;margin-bottom:10px;">上传非图片文件（如 .exe、.txt 伪装成图片），会被魔数检测拦截</p>
+        <div class="form-group">
+            <label>选择任意文件测试安全拦截：</label>
+            <input type="file" id="securityFile">
+        </div>
+        <button onclick="uploadSecurity()">测试安全验证</button>
+        <div class="result" id="securityResult"></div>
+    </div>
+
+    <!-- Section 7 & 8: 缩放+去重 -->
+    <div class="section">
+        <h3>第七节+第八节：图片缩放 & 文件去重</h3>
+        <p style="color:#888;margin-bottom:10px;">上传后自动生成 _pc（800x800）和 _mobile（400x400）版本，相同图片MD5去重</p>
+        <div class="form-group">
+            <label>选择图片（再传一次相同图片测试去重）：</label>
+            <input type="file" id="dedupFile" accept="image/*">
+        </div>
+        <button onclick="uploadDedup()">上传（含缩放+去重）</button>
+        <div class="result" id="dedupResult"></div>
+        <div class="preview" id="dedupPreview"></div>
+        <div class="url-list" id="dedupUrls"></div>
+    </div>
+
+    <!-- 用户头像上传 & 个人中心 -->
+    <div class="section">
+        <h3>用户头像上传 & 个人信息更新</h3>
+        <div class="form-group">
+            <label>用户ID：</label>
+            <input type="text" id="userId" value="1" placeholder="用户ID">
+        </div>
+        <div class="form-group">
+            <label>选择头像：</label>
+            <input type="file" id="avatarFile" accept="image/*">
+        </div>
+        <button onclick="uploadAvatar()">上传头像</button>
+        <div class="preview" id="avatarPreview"></div>
+        <div class="result" id="avatarResult"></div>
+
+        <hr style="margin:20px 0;border-color:#eee;">
+
+        <div class="form-group">
+            <label>昵称：</label>
+            <input type="text" id="nickname" placeholder="输入昵称">
+        </div>
+        <div class="form-group">
+            <label>邮箱：</label>
+            <input type="email" id="email" placeholder="输入邮箱">
+        </div>
+        <div class="form-group">
+            <label>手机号：</label>
+            <input type="text" id="phone" placeholder="输入手机号">
+        </div>
+        <button onclick="updateProfile()">更新个人信息</button>
+        <div class="result" id="profileResult"></div>
+    </div>
+
+    <!-- 用户信息查询 -->
+    <div class="section">
+        <h3>查询用户信息</h3>
+        <div class="form-group">
+            <label>用户ID：</label>
+            <input type="text" id="queryUserId" value="1" placeholder="用户ID">
+        </div>
+        <button onclick="queryUser()">查询</button>
+        <div class="result" id="queryResult"></div>
+    </div>
+</div>
+
+<script>
+    function showResult(id, success, message) {
+        var el = document.getElementById(id);
+        el.style.display = 'block';
+        el.className = 'result ' + (success ? 'success' : 'error');
+        el.textContent = message;
+    }
+
+    function uploadBasic() {
+        var file = document.getElementById('basicFile').files[0];
+        if (!file) { showResult('basicResult', false, '请选择文件'); return; }
+        var formData = new FormData();
+        formData.append('file', file);
+        fetch('/web/file/upload', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                showResult('basicResult', data.code === 200, data.msg);
+                if (data.code === 200 && data.data) {
+                    document.getElementById('basicPreview').innerHTML = '<img src="' + data.data.url + '" style="max-width:200px;">';
+                    document.getElementById('basicUrls').innerHTML =
+                        '<div>原始: ' + data.data.url + '</div>' +
+                        '<div>PC版: ' + data.data.pcUrl + '</div>' +
+                        '<div>Mobile版: ' + data.data.mobileUrl + '</div>' +
+                        (data.data.deduplicated ? '<div style="color:#f0ad4e;">⚠ 文件已去重！</div>' : '');
+                }
+            }).catch(e => showResult('basicResult', false, '请求失败: ' + e));
+    }
+
+    function uploadSecurity() {
+        var file = document.getElementById('securityFile').files[0];
+        if (!file) { showResult('securityResult', false, '请选择文件'); return; }
+        var formData = new FormData();
+        formData.append('file', file);
+        fetch('/web/file/upload', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                showResult('securityResult', data.code === 200,
+                    (data.code === 200 ? '✅ 文件通过验证: ' : '❌ 文件被拦截: ') + data.msg);
+            }).catch(e => showResult('securityResult', false, '请求失败: ' + e));
+    }
+
+    function uploadDedup() {
+        var file = document.getElementById('dedupFile').files[0];
+        if (!file) { showResult('dedupResult', false, '请选择文件'); return; }
+        var formData = new FormData();
+        formData.append('file', file);
+        fetch('/web/file/upload', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                showResult('dedupResult', data.code === 200, data.msg);
+                if (data.code === 200 && data.data) {
+                    document.getElementById('dedupPreview').innerHTML =
+                        '<div><img src="' + data.data.pcUrl + '" style="max-width:150px;margin:5px;"> PC版(800x800)</div>' +
+                        '<div><img src="' + data.data.mobileUrl + '" style="max-width:100px;margin:5px;"> Mobile版(400x400)</div>';
+                    document.getElementById('dedupUrls').innerHTML =
+                        '<div>PC版URL: ' + data.data.pcUrl + '</div>' +
+                        '<div>Mobile版URL: ' + data.data.mobileUrl + '</div>' +
+                        (data.data.deduplicated ? '<div style="color:#f0ad4e;font-weight:bold;">⚠ 检测到重复文件，已命中缓存！</div>' : '<div style="color:#28a745;">✅ 新文件已保存</div>');
+                }
+            }).catch(e => showResult('dedupResult', false, '请求失败: ' + e));
+    }
+
+    function uploadAvatar() {
+        var file = document.getElementById('avatarFile').files[0];
+        if (!file) { showResult('avatarResult', false, '请选择头像文件'); return; }
+        var formData = new FormData();
+        formData.append('file', file);
+        fetch('/web/file/upload/avatar', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                showResult('avatarResult', data.code === 200, data.msg);
+                if (data.code === 200 && data.data) {
+                    document.getElementById('avatarPreview').innerHTML =
+                        '<img src="' + data.data.url + '" style="max-width:100px;border-radius:50%;">';
+                    var id = document.getElementById('userId').value;
+                    fetch('/web/user/avatar', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: id, avatarUrl: data.data.url })
+                    }).then(r => r.json()).then(d => {
+                        showResult('avatarResult', d.code === 200, d.msg + ' (头像URL已保存)');
+                    });
+                }
+            }).catch(e => showResult('avatarResult', false, '请求失败: ' + e));
+    }
+
+    function updateProfile() {
+        var id = document.getElementById('userId').value;
+        fetch('/web/user/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: id,
+                nickname: document.getElementById('nickname').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            })
+        }).then(r => r.json()).then(data => {
+            showResult('profileResult', data.code === 200, data.msg);
+        }).catch(e => showResult('profileResult', false, '请求失败: ' + e));
+    }
+
+    function queryUser() {
+        var id = document.getElementById('queryUserId').value;
+        fetch('/web/user/info/' + id)
+            .then(r => r.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
+                    var u = data.data;
+                    var html = '<div style="line-height:2;">' +
+                        'ID: ' + u.id + '<br>' +
+                        '用户名: ' + u.username + '<br>' +
+                        '昵称: ' + (u.nickname || '-') + '<br>' +
+                        '手机: ' + (u.phone || '-') + '<br>' +
+                        '邮箱: ' + (u.email || '-') + '<br>' +
+                        '头像: ' + (u.avatar ? '<img src="' + u.avatar + '" style="max-width:60px;border-radius:50%;">' : '无') +
+                        '</div>';
+                    document.getElementById('queryResult').style.display = 'block';
+                    document.getElementById('queryResult').className = 'result success';
+                    document.getElementById('queryResult').innerHTML = html;
+                } else {
+                    showResult('queryResult', false, data.msg);
+                }
+            }).catch(e => showResult('queryResult', false, '请求失败: ' + e));
+    }
+</script>
+</body>
+</html>
