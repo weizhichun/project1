@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>购物车 - 在线商城</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0 20px; }
+        .header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .logo { font-size: 24px; font-weight: bold; }
+        .nav { display: flex; gap: 30px; }
+        .nav a { color: white; text-decoration: none; font-size: 16px; opacity: 0.9; }
+        .nav a:hover { opacity: 1; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info a { color: white; text-decoration: none; }
+        .user-info button { padding: 6px 16px; background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 4px; cursor: pointer; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .page-title { font-size: 24px; margin-bottom: 20px; color: #333; }
+        .cart-list { background: white; border-radius: 8px; overflow: hidden; }
+        .cart-item { display: flex; align-items: center; padding: 20px; border-bottom: 1px solid #eee; gap: 20px; }
+        .cart-item:last-child { border-bottom: none; }
+        .item-image { width: 100px; height: 100px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 40px; border-radius: 4px; }
+        .item-info { flex: 1; }
+        .item-name { font-size: 16px; color: #333; margin-bottom: 10px; }
+        .item-price { font-size: 18px; color: #e74c3c; font-weight: bold; }
+        .item-quantity { display: flex; align-items: center; gap: 10px; }
+        .item-quantity button { width: 30px; height: 30px; border: 1px solid #ddd; background: white; cursor: pointer; }
+        .item-quantity input { width: 60px; text-align: center; border: 1px solid #ddd; padding: 5px; }
+        .item-delete { padding: 8px 16px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .cart-footer { background: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .total-price { font-size: 18px; }
+        .total-price span { color: #e74c3c; font-size: 24px; font-weight: bold; }
+        .checkout-btn { padding: 12px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .footer { background: #333; color: #999; text-align: center; padding: 30px 0; margin-top: 50px; }
+        .message { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 6px; display: none; z-index: 1000; }
+        .message.success { background: #d4edda; color: #155724; }
+        .message.error { background: #f8d7da; color: #721c24; }
+        .empty-cart { text-align: center; padding: 80px; color: #999; }
+        .checkbox { width: 20px; height: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-inner">
+        <div class="logo">🛒 在线商城</div>
+        <div class="nav">
+            <a href="/">首页</a>
+            <a href="/cart">购物车</a>
+            <a href="/orders">我的订单</a>
+        </div>
+        <div class="user-info" id="userInfo">
+            <a href="/login" id="loginLink">登录</a>
+            <a href="/register" id="registerLink">注册</a>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="message" id="message"></div>
+    <div class="page-title">🛒 购物车</div>
+    <div class="cart-list" id="cartList"></div>
+</div>
+<div class="footer">
+    <p>© 2024 在线商城 - 在线购物平台</p>
+</div>
+<script>
+    let cartItems = [];
+    let selectedItems = new Set();
+    function showMessage(success, msg) {
+        const el = document.getElementById('message');
+        el.style.display = 'block';
+        el.className = 'message ' + (success ? 'success' : 'error');
+        el.textContent = msg;
+        setTimeout(() => el.style.display = 'none', 3000);
+    }
+    function loadCart() {
+        fetch('/web/cart/list')
+            .then(r => r.json())
+            .then(data => {
+                if (data.code !== 200) {
+                    location.href = '/login';
+                    return;
+                }
+                cartItems = data.data || [];
+                renderCart();
+            });
+    }
+    function renderCart() {
+        const container = document.getElementById('cartList');
+        if (!cartItems || cartItems.length === 0) {
+            container.innerHTML = '<div class="empty-cart">购物车是空的，<a href="/" style="color:#667eea;">去购物</a></div>';
+            return;
+        }
+        let html = cartItems.map(item => `
+            <div class="cart-item">
+                <input type="checkbox" class="checkox" data-id="${item.id}" onchange="toggleSelect(${item.id})" ${selectedItems.has(item.id) ? 'checked' : ''}>
+                <div class="item-image">📦</div>
+                <div class="item-info">
+                    <div class="item-name">商品 ID: ${item.productId}</div>
+                    <div class="item-price">库存: ${item.quantity}</div>
+                </div>
+                <div class="item-quantity">
+                    <button onclick="changeQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                    <input type="number" value="${item.quantity}" onchange="updateQuantity(${item.id}, this.value)">
+                    <button onclick="changeQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                </div>
+                <button class="item-delete" onclick="deleteItem(${item.id})">删除</button>
+            </div>
+        `).join('');
+        html += `
+            <div class="cart-footer">
+                <div>
+                    <input type="checkbox" onchange="toggleAll(this.checked)"> 全选
+                </div>
+                <div class="total-price">
+                    已选择 <span id="selectedCount">0</span> 件
+                </div>
+                <button class="checkout-btn" onclick="checkout()">结算</button>
+            </div>
+        `;
+        container.innerHTML = html;
+        updateSelectedCount();
+    }
+    function toggleSelect(id) {
+        if (selectedItems.has(id)) {
+            selectedItems.delete(id);
+        } else {
+            selectedItems.add(id);
+        }
+        updateSelectedCount();
+    }
+    function toggleAll(checked) {
+        if (checked) {
+            cartItems.forEach(item => selectedItems.add(item.id));
+        } else {
+            selectedItems.clear();
+        }
+        renderCart();
+    }
+    function updateSelectedCount() {
+        document.getElementById('selectedCount').textContent = selectedItems.size;
+    }
+    function changeQuantity(id, quantity) {
+        if (quantity < 1) return;
+        fetch('/web/cart/update', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, quantity })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.code === 200) {
+                loadCart();
+            } else {
+                showMessage(false, data.msg);
+            }
+        });
+    }
+    function updateQuantity(id, quantity) {
+        changeQuantity(id, parseInt(quantity));
+    }
+    function deleteItem(id) {
+        if (!confirm('确定删除？')) return;
+        fetch('/web/cart/' + id, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.code === 200) {
+                    selectedItems.delete(id);
+                    loadCart();
+                    showMessage(true, data.msg);
+                } else {
+                    showMessage(false, data.msg);
+                }
+            });
+    }
+    function checkout() {
+        if (selectedItems.size === 0) {
+            showMessage(false, '请选择要结算的商品');
+            return;
+        }
+        fetch('/web/order/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cartIds: Array.from(selectedItems) })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.code === 200) {
+                showMessage(true, '订单创建成功');
+                setTimeout(() => location.href = '/orders', 1000);
+            } else {
+                showMessage(false, data.msg);
+            }
+        });
+    }
+    loadCart();
+    fetch('/web/user/session')
+        .then(r => r.json())
+        .then(data => {
+            if (data.code === 200 && data.data) {
+                document.getElementById('userInfo').innerHTML =
+                    '<span>欢迎，' + data.data.nickname + '</span>' +
+                    '<a href="/profile">个人中心</a>' +
+                    '<button onclick="logout()">退出</button>';
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('registerLink').style.display = 'none';
+            }
+        });
+    function logout() {
+        fetch('/web/user/logout', { method: 'POST' })
+            .then(() => location.href = '/');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0 20px; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+    .logo { font-size: 24px; font-weight: bold; }
+    .nav { display: flex; gap: 30px; }
+    .nav a { color: white; text-decoration: none; font-size: 16px; opacity: 0.9; transition: opacity 0.3s; }
+    .nav a:hover { opacity: 1; }
+    .user-info { display: flex; align-items: center; gap: 15px; }
+    .user-info a { color: white; text-decoration: none; }
+    .user-info button { padding: 6px 16px; background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 4px; cursor: pointer; }
+    .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+</style>
+</head>
+<body>
+<div class="header">
+    <div class="header-inner">
+        <div class="logo">🛒 在线商城</div>
+        <div class="nav">
+            <a href="/">首页</a>
+            <a href="/cart">购物车</a>
+            <a href="/orders">我的订单</a>
+        </div>
+        <div class="user-info" id="userInfo">
+            <a href="/login" id="loginLink">登录</a>
+            <a href="/register" id="registerLink">注册</a>
+        </div>
+    </div>
+</div>
+<script>
+    fetch('/web/user/session')
+        .then(r => r.json())
+        .then(data => {
+            if (data.code === 200 && data.data) {
+                document.getElementById('userInfo').innerHTML =
+                    '<span>欢迎，' + data.data.nickname + '</span>' +
+                    '<a href="/profile">个人中心</a>' +
+                    '<button onclick="logout()">退出</button>';
+            document.getElementById('loginLink').style.display = 'none';
+            document.getElementById('registerLink').style.display = 'none';
+            window.currentUser = data.data;
+        }
+    });
+    function logout() {
+        fetch('/web/user/logout', { method: 'POST' })
+            .then(() => location.href = '/');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>系统诊断页面</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 8px 16px; margin: 5px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #5a6fd6; }
+        pre { background: #f8f8f8; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 系统诊断页面</h1>
+        
+        <div class="section">
+            <h2>1. 快速链接</h2>
+            <p><a href="/" target="_blank">🏠 前台首页</a></p>
+            <p><a href="/debug/count" target="_blank">📊 /debug/count - 商品统计</a></p>
+            <p><a href="/debug/products" target="_blank">📦 /debug/products - 所有商品</a></p>
+            <p><a href="/debug/products/on" target="_blank">✅ /debug/products/on - 上架商品</a></p>
+            <p><a href="/web/product/page?pageNum=1&pageSize=8" target="_blank">📄 /web/product/page - 分页接口</a></p>
+        </div>
+        
+        <div class="section">
+            <h2>2. 诊断测试</h2>
+            <button onclick="testCount()">测试商品统计</button>
+            <button onclick="testAllProducts()">测试所有商品</button>
+            <button onclick="testOnProducts()">测试上架商品</button>
+            <button onclick="testProductPage()">测试分页接口</button>
+            <button onclick="testHomeApi()">测试首页接口</button>
+            <div id="result" style="margin-top:10px; min-height:50px;"></div>
+        </div>
+        
+        <div class="section">
+            <h2>3. 结果展示</h2>
+            <div id="output"></div>
+        </div>
+    </div>
+    
+    <script>
+        function show(text, type) {
+            let className = 'info';
+            if (type === 'success') className = 'success';
+            if (type === 'error') className = 'error';
+            document.getElementById('result').innerHTML = 
+                '<div class="' + className + '">' + text + '</div>';
+        }
+        
+        function renderJson(data) {
+            return '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+        
+        function renderProducts(products) {
+            if (!products || products.length === 0) {
+                return '<p class="error">没有商品数据！</p>';
+            }
+            let html = '<table><tr><th>ID</th><th>商品名</th><th>价格</th><th>库存</th><th>状态</th><th>创建时间</th></tr>';
+            products.forEach(p => {
+                html += '<tr>';
+                html += '<td>' + p.id + '</td>';
+                html += '<td>' + (p.productName || '-') + '</td>';
+                html += '<td>¥' + (p.price || 0) + '</td>';
+                html += '<td>' + (p.stock || 0) + '</td>';
+                html += '<td>' + (p.status === 1 ? '✅ 上架' : '❌ ' + p.status) + '</td>';
+                html += '<td>' + (p.createTime || '-') + '</td>';
+                html += '</tr>';
+            });
+            html += '</table>';
+            return html;
+        }
+        
+        function testCount() {
+            show('正在测试...', 'info');
+            fetch('/debug/count')
+                .then(r => r.json())
+                .then(data => {
+                    show('测试成功！', 'success');
+                    document.getElementById('output').innerHTML = '<h3>商品统计</h3>' + renderJson(data);
+                })
+                .catch(err => {
+                    show('错误: ' + err, 'error');
+                    document.getElementById('output').innerHTML = '<p class="error">' + err + '</p>';
+                });
+        }
+        
+        function testAllProducts() {
+            show('正在测试...', 'info');
+            fetch('/debug/products')
+                .then(r => r.json())
+                .then(data => {
+                    show('找到 ' + data.length + ' 个商品', 'success');
+                    document.getElementById('output').innerHTML = '<h3>所有商品</h3>' + renderProducts(data);
+                })
+                .catch(err => {
+                    show('错误: ' + err, 'error');
+                    document.getElementById('output').innerHTML = '<p class="error">' + err + '</p>';
+                });
+        }
+        
+        function testOnProducts() {
+            show('正在测试...', 'info');
+            fetch('/debug/products/on')
+                .then(r => r.json())
+                .then(data => {
+                    show('找到 ' + data.length + ' 个上架商品', 'success');
+                    document.getElementById('output').innerHTML = '<h3>上架商品</h3>' + renderProducts(data);
+                })
+                .catch(err => {
+                    show('错误: ' + err, 'error');
+                    document.getElementById('output').innerHTML = '<p class="error">' + err + '</p>';
+                });
+        }
+        
+        function testProductPage() {
+            show('正在测试...', 'info');
+            fetch('/web/product/page?pageNum=1&pageSize=8')
+                .then(r => r.json())
+                .then(data => {
+                    show('分页接口测试成功', 'success');
+                    let html = '<h3>分页接口返回</h3>' + renderJson(data);
+                    if (data.code === 200 && data.data && data.data.records) {
+                        html += '<h3>商品列表</h3>' + renderProducts(data.data.records);
+                    }
+                    document.getElementById('output').innerHTML = html;
+                })
+                .catch(err => {
+                    show('错误: ' + err, 'error');
+                    document.getElementById('output').innerHTML = '<p class="error">' + err + '</p>';
+                });
+        }
+        
+        function testHomeApi() {
+            show('正在测试首页接口...', 'info');
+            fetch('/web/product/page?pageNum=1&pageSize=8')
+                .then(r => r.json())
+                .then(data => {
+                    console.log('首页接口返回:', data);
+                    if (data.code === 200) {
+                        show('首页接口正常！找到 ' + (data.data.records ? data.data.records.length : 0) + ' 个商品', 'success');
+                        document.getElementById('output').innerHTML = '<h3>首页接口数据</h3>' + renderJson(data);
+                    } else {
+                        show('接口返回错误: ' + data.msg, 'error');
+                        document.getElementById('output').innerHTML = renderJson(data);
+                    }
+                })
+                .catch(err => {
+                    show('错误: ' + err, 'error');
+                    document.getElementById('output').innerHTML = '<p class="error">' + err + '</p>';
+                });
+        }
+        
+        window.onload = function() {
+            console.log('页面加载完成，开始测试...');
+            testCount();
+        };
+    </script>
+</body>
+</html>

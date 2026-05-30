@@ -21,7 +21,7 @@ public class ProductServiceImpl implements ProductService {
     public Page<Product> page(Integer pageNum, Integer pageSize, String productName) {
         Page<Product> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
-        wrapper.ne(Product::getStatus, CommonConstant.PRODUCT_STATUS_DELETED);
+        wrapper.eq(Product::getStatus, CommonConstant.PRODUCT_STATUS_ON);
         if (productName != null && !productName.trim().isEmpty()) {
             wrapper.like(Product::getProductName, productName);
         }

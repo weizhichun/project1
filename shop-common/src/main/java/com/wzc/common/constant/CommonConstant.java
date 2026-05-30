@@ -14,6 +14,11 @@ public class CommonConstant {
     public static final Integer USER_STATUS_NORMAL = 1;
     public static final Integer USER_STATUS_DISABLED = 0;
 
+    public static final Integer ORDER_STATUS_PENDING = 0;
+    public static final Integer ORDER_STATUS_PAID = 1;
+    public static final Integer ORDER_STATUS_SHIPPED = 2;
+    public static final Integer ORDER_STATUS_COMPLETED = 3;
+
     public static final String UPLOAD_DIR = "uploads";
     public static final int PC_WIDTH = 800;
     public static final int PC_HEIGHT = 800;

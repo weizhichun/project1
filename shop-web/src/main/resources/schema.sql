@@ -1,0 +1,77 @@
+-- 用户表
+CREATE TABLE IF NOT EXISTS wzc_user (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    nickname VARCHAR(50),
+    phone VARCHAR(20),
+    email VARCHAR(100),
+    avatar VARCHAR(500),
+    status INT DEFAULT 1,
+    is_deleted INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 商品表
+CREATE TABLE IF NOT EXISTS wzc_product (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(200) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT DEFAULT 0,
+    category VARCHAR(100),
+    description TEXT,
+    main_image VARCHAR(500),
+    images TEXT,
+    status INT DEFAULT 1,
+    is_deleted INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 文件记录表
+CREATE TABLE IF NOT EXISTS wzc_file_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    original_name VARCHAR(255),
+    stored_name VARCHAR(255),
+    file_path VARCHAR(500),
+    file_size BIGINT,
+    file_type VARCHAR(100),
+    md5 VARCHAR(64),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 购物车表
+CREATE TABLE IF NOT EXISTS wzc_cart (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INT DEFAULT 1,
+    is_deleted INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 订单表
+CREATE TABLE IF NOT EXISTS wzc_order (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(64) NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    status INT DEFAULT 0,
+    is_deleted INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 订单项表
+CREATE TABLE IF NOT EXISTS wzc_order_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_name VARCHAR(200) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    quantity INT DEFAULT 1,
+    total_amount DECIMAL(10,2) NOT NULL,
+    main_image VARCHAR(500)
+);
