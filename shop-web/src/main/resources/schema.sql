@@ -75,3 +75,37 @@ CREATE TABLE IF NOT EXISTS wzc_order_item (
     total_amount DECIMAL(10,2) NOT NULL,
     main_image VARCHAR(500)
 );
+
+-- 聊天会话表
+CREATE TABLE IF NOT EXISTS wzc_chat_session (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    session_no VARCHAR(64) NOT NULL UNIQUE,
+    title VARCHAR(200),
+    status INT DEFAULT 1,
+    is_deleted INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 聊天消息表
+CREATE TABLE IF NOT EXISTS wzc_chat_message (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    session_id BIGINT NOT NULL,
+    role VARCHAR(20) NOT NULL,
+    content TEXT NOT NULL,
+    is_deleted INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 价格记录表
+CREATE TABLE IF NOT EXISTS wzc_price_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    platform VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    product_url VARCHAR(500),
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

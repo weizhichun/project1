@@ -21,4 +21,6 @@ public interface OrderService {
     boolean ship(Long orderId);
 
     boolean complete(Long orderId);
+
+    Page<Order> pageAll(Integer pageNum, Integer pageSize);
 }

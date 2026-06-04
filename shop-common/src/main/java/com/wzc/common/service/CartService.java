@@ -10,9 +10,9 @@ public interface CartService {
 
     boolean add(Long userId, Long productId, Integer quantity);
 
-    boolean updateQuantity(Long id, Integer quantity);
+    boolean updateQuantity(Long userId, Long id, Integer quantity);
 
-    boolean delete(Long id);
+    boolean delete(Long userId, Long id);
 
     boolean deleteByUserAndProduct(Long userId, Long productId);
 

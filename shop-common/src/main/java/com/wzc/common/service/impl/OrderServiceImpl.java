@@ -158,6 +158,15 @@ public class OrderServiceImpl implements OrderService {
         return rows > 0;
     }
 
+    @Override
+    public Page<Order> pageAll(Integer pageNum, Integer pageSize) {
+        Page<Order> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Order::getIsDeleted, 0)
+               .orderByDesc(Order::getCreateTime);
+        return orderMapper.selectPage(page, wrapper);
+    }
+
     private String generateOrderNo() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();

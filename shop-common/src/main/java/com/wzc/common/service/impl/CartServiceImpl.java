@@ -64,11 +64,16 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public boolean updateQuantity(Long id, Integer quantity) {
+    public boolean updateQuantity(Long userId, Long id, Integer quantity) {
         Cart cart = cartMapper.selectById(id);
         if (cart == null) {
             throw new BusinessException("购物车项不存在");
         }
+        
+        if (!cart.getUserId().equals(userId)) {
+            throw new BusinessException("无权操作该购物车项");
+        }
+        
         Product product = productMapper.selectById(cart.getProductId());
         if (product == null) {
             throw new BusinessException("商品不存在");
@@ -78,14 +83,23 @@ public class CartServiceImpl implements CartService {
         }
         cart.setQuantity(quantity);
         int rows = cartMapper.updateById(cart);
-        log.info("购物车数量更新: id={}, quantity={}", id, quantity);
+        log.info("购物车数量更新: userId={}, id={}, quantity={}", userId, id, quantity);
         return rows > 0;
     }
 
     @Override
-    public boolean delete(Long id) {
+    public boolean delete(Long userId, Long id) {
+        Cart cart = cartMapper.selectById(id);
+        if (cart == null) {
+            throw new BusinessException("购物车项不存在");
+        }
+        
+        if (!cart.getUserId().equals(userId)) {
+            throw new BusinessException("无权操作该购物车项");
+        }
+        
         int rows = cartMapper.deleteById(id);
-        log.info("购物车删除: id={}", id);
+        log.info("购物车删除: userId={}, id={}", userId, id);
         return rows > 0;
     }
 

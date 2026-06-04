@@ -3,3 +3,15 @@ spring:
     active: h2
 server:
   port: 8081
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        # 生产环境启用HTTPS时设置为true
+        secure: false
+        same-site: strict
+ai:
+  api-key: your-api-key-here
+  base-url: https://api.openai.com
+  model: gpt-3.5-turbo
+  timeout: 30000

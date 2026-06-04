@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单管理</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .container { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f5f5f5; font-weight: bold; }
+        tr:hover { background: #f9f9f9; }
+        .status { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .status-0 { background: #fff3cd; color: #856404; }
+        .status-1 { background: #cce5ff; color: #004085; }
+        .status-2 { background: #d4edda; color: #155724; }
+        .status-3 { background: #28a745; color: white; }
+        .status-4 { background: #6c757d; color: white; }
+        .btn { padding: 5px 12px; border: none; border-radius: 4px; cursor: pointer; color: white; }
+        .btn-ship { background: #007bff; }
+        .btn-complete { background: #28a745; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .pagination { margin-top: 20px; display: flex; gap: 5px; }
+        .pagination button { padding: 5px 10px; border: 1px solid #ddd; background: white; cursor: pointer; }
+        .pagination button.active { background: #007bff; color: white; border-color: #007bff; }
+        .detail-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .detail-content { background: white; margin: 50px auto; padding: 20px; width: 500px; border-radius: 8px; }
+        .detail-close { float: right; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>订单管理</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>订单号</th>
+                    <th>用户ID</th>
+                    <th>总金额</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="orderTable"></tbody>
+        </table>
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <script>
+    let currentPage = 1;
+    const statusMap = { 0: '待支付', 1: '待发货', 2: '已发货', 3: '已完成', 4: '已取消' };
+
+    async function loadOrders(page = 1) {
+        currentPage = page;
+        const res = await fetch(`/api/admin/order/list?page=${page}&size=10`);
+        const data = await res.json();
+        if (data.code === 200) {
+            renderTable(data.data.records);
+            renderPagination(data.data);
+        }
+    }
+
+    function renderTable(records) {
+        document.getElementById('orderTable').innerHTML = records.map(o => `
+            <tr>
+                <td>${o.orderNo}</td>
+                <td>${o.userId}</td>
+                <td>¥${o.totalAmount}</td>
+                <td><span class="status status-${o.status}">${statusMap[o.status] || o.status}</span></td>
+                <td>${o.createTime || '-'}</td>
+                <td>
+                    ${o.status === 1 ? `<button class="btn btn-ship" onclick="ship(${o.id})">发货</button>` : ''}
+                    ${o.status === 2 ? `<button class="btn btn-complete" onclick="complete(${o.id})">完成</button>` : ''}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderPagination(pageData) {
+        const total = pageData.total;
+        const pages = Math.ceil(total / pageData.size);
+        const pagination = document.getElementById('pagination');
+        let html = '';
+        for (let i = 1; i <= pages; i++) {
+            html += `<button class="${i === currentPage ? 'active' : ''}" onclick="loadOrders(${i})">${i}</button>`;
+        }
+        pagination.innerHTML = html;
+    }
+
+    async function ship(id) {
+        await fetch(`/api/admin/order/ship/${id}`, { method: 'POST' });
+        loadOrders(currentPage);
+    }
+
+    async function complete(id) {
+        await fetch(`/api/admin/order/complete/${id}`, { method: 'POST' });
+        loadOrders(currentPage);
+    }
+
+    loadOrders();
+    </script>
+</body>
+</html>

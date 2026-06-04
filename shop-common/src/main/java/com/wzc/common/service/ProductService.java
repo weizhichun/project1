@@ -3,6 +3,8 @@ package com.wzc.common.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wzc.common.entity.Product;
 
+import java.util.List;
+
 public interface ProductService {
 
     Page<Product> page(Integer pageNum, Integer pageSize, String productName);
@@ -16,4 +18,8 @@ public interface ProductService {
     boolean updateStatus(Long id, Integer status);
 
     boolean delete(Long id);
+
+    List<Product> getAllProducts();
+
+    List<Product> getOnSaleProducts();
 }

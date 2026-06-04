@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .container { padding: 20px; }
+        .search-bar { margin-bottom: 20px; }
+        .search-bar input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 200px; }
+        .search-bar button { padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f5f5f5; font-weight: bold; }
+        tr:hover { background: #f9f9f9; }
+        .status-active { color: #4CAF50; }
+        .status-disabled { color: #f44336; }
+        .btn { padding: 5px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-enable { background: #4CAF50; color: white; }
+        .btn-disable { background: #f44336; color: white; }
+        .pagination { margin-top: 20px; display: flex; gap: 5px; }
+        .pagination button { padding: 5px 10px; border: 1px solid #ddd; background: white; cursor: pointer; }
+        .pagination button.active { background: #4CAF50; color: white; border-color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>用户管理</h1>
+        <div class="search-bar">
+            <input type="text" id="keyword" placeholder="搜索用户名/昵称">
+            <button onclick="search()">搜索</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>昵称</th>
+                    <th>手机</th>
+                    <th>邮箱</th>
+                    <th>状态</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="userTable"></tbody>
+        </table>
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <script>
+    let currentPage = 1;
+    let keyword = '';
+
+    async function loadUsers(page = 1) {
+        currentPage = page;
+        const res = await fetch(`/api/admin/user/list?page=${page}&size=10&keyword=${encodeURIComponent(keyword)}`);
+        const data = await res.json();
+        if (data.code === 200) {
+            renderTable(data.data.records);
+            renderPagination(data.data);
+        }
+    }
+
+    function renderTable(records) {
+        document.getElementById('userTable').innerHTML = records.map(u => `
+            <tr>
+                <td>${u.id}</td>
+                <td>${u.username}</td>
+                <td>${u.nickname || '-'}</td>
+                <td>${u.phone || '-'}</td>
+                <td>${u.email || '-'}</td>
+                <td class="${u.status === 1 ? 'status-active' : 'status-disabled'}">
+                    ${u.status === 1 ? '正常' : '禁用'}
+                </td>
+                <td>${u.createTime || '-'}</td>
+                <td>
+                    <button class="btn ${u.status === 1 ? 'btn-disable' : 'btn-enable'}" 
+                            onclick="toggleStatus(${u.id}, ${u.status === 1 ? 0 : 1})">
+                        ${u.status === 1 ? '禁用' : '启用'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderPagination(pageData) {
+        const total = pageData.total;
+        const pages = Math.ceil(total / pageData.size);
+        const pagination = document.getElementById('pagination');
+        let html = '';
+        for (let i = 1; i <= pages; i++) {
+            html += `<button class="${i === currentPage ? 'active' : ''}" onclick="loadUsers(${i})">${i}</button>`;
+        }
+        pagination.innerHTML = html;
+    }
+
+    async function toggleStatus(id, status) {
+        await fetch(`/api/admin/user/status/${id}/${status}`, { method: 'POST' });
+        loadUsers(currentPage);
+    }
+
+    function search() {
+        keyword = document.getElementById('keyword').value;
+        loadUsers(1);
+    }
+
+    loadUsers();
+    </script>
+</body>
+</html>
