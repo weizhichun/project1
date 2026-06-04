@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AI客服</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .chat-container { max-width: 900px; margin: 20px auto; padding: 20px; display: flex; gap: 20px; }
+        .chat-sidebar { width: 200px; flex-shrink: 0; }
+        .chat-main { flex: 1; }
+        .chat-sidebar .new-chat-btn { width: 100%; padding: 10px; margin-bottom: 15px; }
+        .session-list { border: 1px solid #ddd; border-radius: 5px; max-height: 400px; overflow-y: auto; }
+        .session-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .session-item:hover { background: #f5f5f5; }
+        .session-item.active { background: #e3f2fd; }
+        .session-item:last-child { border-bottom: none; }
+        .chat-messages { height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; padding: 15px; background: #fafafa; margin-bottom: 15px; }
+        .message { margin: 15px 0; padding: 12px 15px; border-radius: 10px; max-width: 80%; }
+        .message.user { background: #e3f2fd; margin-left: auto; }
+        .message.assistant { background: #ffffff; border: 1px solid #ddd; margin-right: auto; }
+        .message p { margin: 5px 0; }
+        .chat-input { display: flex; gap: 10px; }
+        .chat-input textarea { flex: 1; height: 60px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: none; }
+        .chat-input button { padding: 10px 25px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .chat-input button:hover { background: #45a049; }
+        .no-session { text-align: center; color: #999; margin-top: 50px; }
+        .welcome-tip { text-align: center; color: #666; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div th:replace="common/header :: header"></div>
+
+    <div class="chat-container">
+        <div class="chat-sidebar">
+            <button onclick="createSession()" class="btn btn-primary new-chat-btn">新建对话</button>
+            <div id="sessionList" class="session-list"></div>
+        </div>
+        <div class="chat-main">
+            <h3>AI智能客服</h3>
+            <div class="welcome-tip" id="welcomeTip">请选择左侧对话或创建新对话开始咨询</div>
+            <div id="chatMessages" class="chat-messages" style="display:none;"></div>
+            <div class="chat-input">
+                <textarea id="messageInput" placeholder="请输入您的问题..."></textarea>
+                <button onclick="sendMessage()" class="btn btn-primary">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="common/footer :: footer"></div>
+    <script th:src="@{/js/chat.js}"></script>
+</body>
+</html>

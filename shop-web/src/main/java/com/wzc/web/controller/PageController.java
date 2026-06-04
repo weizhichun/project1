@@ -35,4 +35,9 @@ public class PageController {
     public String test() {
         return "test";
     }
+
+    @GetMapping("/chat")
+    public String chat() {
+        return "chat";
+    }
 }

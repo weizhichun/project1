@@ -61,7 +61,7 @@ public class CartController {
         }
         Long id = Long.valueOf(idObj.toString());
         Integer quantity = Integer.valueOf(quantityObj.toString());
-        boolean success = cartService.updateQuantity(id, quantity);
+        boolean success = cartService.updateQuantity(user.getId(), id, quantity);
         if (success) {
             return ResultUtil.success("更新成功");
         }
@@ -74,7 +74,7 @@ public class CartController {
         if (user == null) {
             return ResultUtil.fail("未登录");
         }
-        boolean success = cartService.delete(id);
+        boolean success = cartService.delete(user.getId(), id);
         if (success) {
             return ResultUtil.success("删除成功");
         }

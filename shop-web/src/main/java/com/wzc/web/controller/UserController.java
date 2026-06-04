@@ -66,7 +66,16 @@ public class UserController {
     }
 
     @GetMapping("/info/{id}")
-    public ResultUtil<User> getUserInfo(@PathVariable Long id) {
+    public ResultUtil<User> getUserInfo(@PathVariable Long id, HttpSession session) {
+        User sessionUser = (User) session.getAttribute("user");
+        if (sessionUser == null) {
+            return ResultUtil.fail("未登录");
+        }
+        
+        if (!sessionUser.getId().equals(id)) {
+            return ResultUtil.fail("无权查看其他用户信息");
+        }
+        
         User user = userService.getById(id);
         if (user == null) {
             return ResultUtil.fail("用户不存在");

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -55,8 +57,8 @@ public class ProductServiceImpl implements ProductService {
         product.setId(id);
         product.setStatus(status);
         int rows = productMapper.updateById(product);
-        String statusDesc = status == CommonConstant.PRODUCT_STATUS_ON ? "上架" :
-                status == CommonConstant.PRODUCT_STATUS_OFF ? "下架" : "删除";
+        String statusDesc = status.equals(CommonConstant.PRODUCT_STATUS_ON) ? "上架" :
+                status.equals(CommonConstant.PRODUCT_STATUS_OFF) ? "下架" : "删除";
         log.info("商品{}: id={}, status={}", statusDesc, id, status);
         return rows > 0;
     }
@@ -69,5 +71,17 @@ public class ProductServiceImpl implements ProductService {
         int rows = productMapper.updateById(product);
         log.info("逻辑删除商品: id={}, affected={}", id, rows);
         return rows > 0;
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productMapper.selectList(null);
+    }
+
+    @Override
+    public List<Product> getOnSaleProducts() {
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getStatus, CommonConstant.PRODUCT_STATUS_ON);
+        return productMapper.selectList(wrapper);
     }
 }
